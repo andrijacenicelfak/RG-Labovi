@@ -1,48 +1,48 @@
-// lab12021View.cpp : implementation of the Clab12021View class
+
+// IND_18042View.cpp : implementation of the CIND18042View class
 //
+
 #include "pch.h"
 #include "framework.h"
 // SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
 // and search filter handlers and allows sharing of document code with that project.
 #ifndef SHARED_HANDLERS
-#include "lab12021.h"
+#include "IND_18042.h"
 #endif
 
-#include "lab12021Doc.h"
-#include "lab12021View.h"
+#include "IND_18042Doc.h"
+#include "IND_18042View.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-#include <iostream>
 
-using namespace std;
 
-// Clab12021View
+// CIND18042View
 
-IMPLEMENT_DYNCREATE(Clab12021View, CView)
+IMPLEMENT_DYNCREATE(CIND18042View, CView)
 
-BEGIN_MESSAGE_MAP(Clab12021View, CView)
+BEGIN_MESSAGE_MAP(CIND18042View, CView)
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
-	ON_WM_KEYDOWN()
+	ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
-// Clab12021View construction/destruction
+// CIND18042View construction/destruction
 
-Clab12021View::Clab12021View() noexcept
+CIND18042View::CIND18042View() noexcept
 {
 	// TODO: add construction code here
 
 }
 
-Clab12021View::~Clab12021View()
+CIND18042View::~CIND18042View()
 {
 }
 
-BOOL Clab12021View::PreCreateWindow(CREATESTRUCT& cs)
+BOOL CIND18042View::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: Modify the Window class or styles here by modifying
 	//  the CREATESTRUCT cs
@@ -50,11 +50,14 @@ BOOL Clab12021View::PreCreateWindow(CREATESTRUCT& cs)
 	return CView::PreCreateWindow(cs);
 }
 
-void DrawRegularPolygon(CDC* pDC, int cx, int cy, int r, int n, float rotAngle) {
+//Added funtions
+
+void CIND18042View::DrawRegularPolygon(CDC* pDC, int cx, int cy, int r, int n, float rotAngle)
+{
 	CBrush* old = (CBrush*)pDC->SelectStockObject(HOLLOW_BRUSH);
 	float rot = 2 * 3.1415926535 / n;
 	POINT* points = new POINT[n];
-	
+
 	for (int i = 0; i < n; i++) {
 		points[i].x = r * cos(rotAngle) + cx;
 		points[i].y = r * sin(rotAngle) + cy;
@@ -63,16 +66,24 @@ void DrawRegularPolygon(CDC* pDC, int cx, int cy, int r, int n, float rotAngle) 
 	pDC->Polygon(points, n);
 	pDC->SelectObject(old);
 }
-void DrawGrid(CDC* pDC) {
+
+void CIND18042View::DrawGrid(CDC* pDC)
+{
+	if (!this->isGridOn)
+		return;
+	CPen pen(PS_SOLID, 1, RGB(255, 255, 255));
+	CPen* old = pDC->SelectObject(&pen);
 	for (int i = 0; i < 20; i++) {
 		pDC->MoveTo(i * 25, 0);
 		pDC->LineTo(i * 25, 500);
 		pDC->MoveTo(0, i * 25);
 		pDC->LineTo(500, i * 25);
 	}
+	pDC->SelectObject(old);
 }
 
-void DrawTrianglePattern(POINT p1, POINT p2, POINT p3, COLORREF fill, int pattern, COLORREF patternColor, CDC* pDC) {
+void CIND18042View::DrawTrianglePattern(POINT p1, POINT p2, POINT p3, COLORREF fill, int pattern, COLORREF patternColor, CDC* pDC)
+{
 	COLORREF bck = pDC->GetBkColor();
 	pDC->SetBkColor(fill);
 	CBrush brush(pattern, patternColor);
@@ -88,10 +99,14 @@ void DrawTrianglePattern(POINT p1, POINT p2, POINT p3, COLORREF fill, int patter
 	pDC->SelectObject(old);
 	pDC->SetBkColor(bck);
 }
-void DrawTriangle(POINT p1, POINT p2, POINT p3, COLORREF fill, CDC* pDC) {
+
+void CIND18042View::DrawTriangle(POINT p1, POINT p2, POINT p3, COLORREF fill, CDC* pDC)
+{
 	DrawTrianglePattern(p1, p2, p3, fill, 0, fill, pDC);
 }
-void DrawQuadrilateralPattern(POINT p1, POINT p2, POINT p3, POINT p4, COLORREF fill, int pattern, COLORREF patternColor, CDC* pDC) {
+
+void CIND18042View::DrawQuadrilateralPattern(POINT p1, POINT p2, POINT p3, POINT p4, COLORREF fill, int pattern, COLORREF patternColor, CDC* pDC)
+{
 	COLORREF bck = pDC->GetBkColor();
 	pDC->SetBkColor(fill);
 	CBrush brush(pattern, patternColor);
@@ -108,23 +123,26 @@ void DrawQuadrilateralPattern(POINT p1, POINT p2, POINT p3, POINT p4, COLORREF f
 	pDC->SelectObject(old);
 	pDC->SetBkColor(bck);
 }
-void DrawQuadrilateral(POINT p1, POINT p2, POINT p3, POINT p4, COLORREF fill, CDC* pDC) {
+
+void CIND18042View::DrawQuadrilateral(POINT p1, POINT p2, POINT p3, POINT p4, COLORREF fill, CDC* pDC)
+{
 	DrawQuadrilateralPattern(p1, p2, p3, p4, fill, 0, fill, pDC);
 }
+void CIND18042View::DrawBackground(COLORREF backgroundColor, CDC* pDC) {
+	CBrush brush(backgroundColor);
+	pDC->FillRect(CRect(0,0,500,500), &brush);
 
-void Clab12021View::OnDraw(CDC* pDC)
+}
+// CIND18042View drawing
+
+void CIND18042View::OnDraw(CDC* pDC)
 {
-	Clab12021Doc* pDoc = GetDocument();
+	CIND18042Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-	//Background
-	pDC->SetBkColor(RGB(155, 155, 155));
-	CRect rect(0,0,500,500);
-	CBrush* bk = new CBrush(RGB(200, 200, 200));
-	pDC->FillRect(rect, bk);
+	this->DrawBackground(RGB(200, 200, 200), pDC);
 
-	//Zelene olovka
 	CPen* pen = new CPen(PS_SOLID, 5, RGB(120, 240, 0));
 	CPen* old = pDC->SelectObject(pen);
 
@@ -137,7 +155,7 @@ void Clab12021View::OnDraw(CDC* pDC)
 	DrawTrianglePattern({ 25,25 }, { 25, 7 * 25 }, { 7 * 25, 7 * 25 }, RGB(255, 255, 255), HS_FDIAGONAL, RGB(0, 0, 0), pDC);
 
 	//sivi trougao levi
-	DrawTriangle({ 25, 25 * 7 }, { 25 * 7, 25 * 7 }, { 25 * 7, 25 *13}, RGB(220, 220, 220), pDC);
+	DrawTriangle({ 25, 25 * 7 }, { 25 * 7, 25 * 7 }, { 25 * 7, 25 * 13 }, RGB(220, 220, 220), pDC);
 
 	//nepravilni zeleni 4-ugao
 	DrawQuadrilateral({ 25, 25 * 7 }, { 25 * 7, 25 * 13 }, { 25 * 7, 25 * 19 }, { 25, 25 * 13 }, RGB(20, 200, 20), pDC);
@@ -172,68 +190,61 @@ void Clab12021View::OnDraw(CDC* pDC)
 	//U crveni
 	DrawRegularPolygon(pDC, 25 * 15 + 12, 25 * 15 + 12, 40, 6, 0);
 
-	//Draw grid
-	CPen* gridPen = new CPen(PS_SOLID, 1, RGB(255, 255, 255));
-	pDC->SelectObject(gridPen);
-	if(on)
-		DrawGrid(pDC);
+	this->DrawGrid(pDC);
 
 	pDC->SelectObject(old);
-	delete gridPen;
-	delete pen;
-	delete bk;
 }
 
 
-// Clab12021View printing
+// CIND18042View printing
 
-BOOL Clab12021View::OnPreparePrinting(CPrintInfo* pInfo)
+BOOL CIND18042View::OnPreparePrinting(CPrintInfo* pInfo)
 {
 	// default preparation
 	return DoPreparePrinting(pInfo);
 }
 
-void Clab12021View::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CIND18042View::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add extra initialization before printing
 }
 
-void Clab12021View::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CIND18042View::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add cleanup after printing
 }
 
 
-// Clab12021View diagnostics
+// CIND18042View diagnostics
 
 #ifdef _DEBUG
-void Clab12021View::AssertValid() const
+void CIND18042View::AssertValid() const
 {
 	CView::AssertValid();
 }
 
-void Clab12021View::Dump(CDumpContext& dc) const
+void CIND18042View::Dump(CDumpContext& dc) const
 {
 	CView::Dump(dc);
 }
 
-Clab12021Doc* Clab12021View::GetDocument() const // non-debug version is inline
+CIND18042Doc* CIND18042View::GetDocument() const // non-debug version is inline
 {
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(Clab12021Doc)));
-	return (Clab12021Doc*)m_pDocument;
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CIND18042Doc)));
+	return (CIND18042Doc*)m_pDocument;
 }
 #endif //_DEBUG
 
 
-// Clab12021View message handlers
+// CIND18042View message handlers
 
 
-void Clab12021View::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CIND18042View::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	if (nChar == 'G') {
-		on = !on;
-		InvalidateRect(NULL);
-		UpdateWindow();
+		this->isGridOn = !this->isGridOn;
+		Invalidate();
 	}
-	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+
+	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
