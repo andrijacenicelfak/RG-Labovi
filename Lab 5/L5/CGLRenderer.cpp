@@ -415,8 +415,10 @@ void CGLRenderer::DrawStrip(double r1, double r2, double h, int nSeg)
 void CGLRenderer::DrawFigure(double alpha)
 {
 	glPushMatrix();
-
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	DrawWalls();
+	glDisable(GL_CULL_FACE);
 	DrawPostolje();
 	DrawVase();
 
